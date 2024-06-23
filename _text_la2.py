@@ -97,6 +97,7 @@ def modify_binary_with_text(binary_filename, text_filename):
         for i in range(amount):
             #print(i)
             id = struct.unpack("<I", f.read(4))[0]
+            #print(line)
             if line < len(csv_data) and i == int(csv_data[line][0]):
                 #print(int(csv_data[line][0]))
                 w.write(struct.pack("<I", id_new))
@@ -105,9 +106,16 @@ def modify_binary_with_text(binary_filename, text_filename):
                 line += 1
                 #print(f"id: {id}")
             else:
-                w.write(struct.pack("<I", id))
-                bytes=f.read(0x10)
-                w.write(bytes)
+                if line < len(csv_data) and int(csv_data[line][0]) == 99999:
+                    #print(f"test_1: {int(csv_data[line][0])}")
+                    w.write(struct.pack("<I", id))
+                    bytes=f.read(0x10)
+                    w.write(bytes)
+                    line += 1
+                else:
+                    w.write(struct.pack("<I", id))
+                    bytes=f.read(0x10)
+                    w.write(bytes)
             id_new += 1
         #exit()
 
@@ -157,7 +165,11 @@ def modify_binary_with_text(binary_filename, text_filename):
                 
                 #text_data = text_file.readline().strip().replace('\\n', '\n')
                 #print(f"i: {i}")
-                text_data = csv_data[line][2].replace('\\n', '\n')
+                
+                if int(csv_data[line][0]) == 99999:
+                    text_data = csv_data[line][1].replace('\\n', '\n')
+                else:
+                    text_data = csv_data[line][2].replace('\\n', '\n')
                 print(f"text_data: {text_data}")
                 #print(f"text_len: {len(text_data)}")
                 text_bytes = text_data.encode('utf-8')
